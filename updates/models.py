@@ -53,6 +53,9 @@ class History(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        verbose_name_plural = "Histories"
+
 
 class Version(models.Model):
     version = models.CharField(max_length=20, verbose_name="Number/Name of version")
