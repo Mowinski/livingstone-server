@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 
 class Level(models.Model):
@@ -59,6 +60,22 @@ class History(models.Model):
 
 class Version(models.Model):
     version = models.CharField(max_length=20, verbose_name="Number/Name of version")
+    next_version = models.ForeignKey("Version", verbose_name="Next version, leave empty if it is the latest one",
+                                     related_name="next_available_version",
+                                     null=True, blank=True, default=None, on_delete=models.SET_NULL)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        should_update_version = not bool(self.pk)
+        super().save(force_insert, force_update, using, update_fields)
+
+        if not should_update_version:
+            return
+        try:
+            none_version = Version.objects.get(~Q(pk=self.pk), next_version__isnull=True)
+            none_version.next_version = self
+            none_version.save()
+        except Version.DoesNotExist:
+            pass
 
     def __str__(self):
         return f"Ver: {self.version}"

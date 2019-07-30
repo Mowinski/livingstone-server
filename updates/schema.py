@@ -21,12 +21,23 @@ class SetType(DjangoObjectType):
 
 class VersionType(DjangoObjectType):
     all_sets = graphene.List(SetType)
+    has_next_version = graphene.Boolean()
+    next_version = graphene.Int()
 
     def resolve_all_sets(self, info, **kwargs):
         return Set.objects.all()
 
+    def resolve_has_next_version(self, info, **kwargs):
+        return bool(self.next_version)
+
+    def resolve_next_version(self, info, **kwargs):
+        if self.next_version:
+            return self.next_version.pk
+        return 0
+
     class Meta:
         model = Version
+        fields = ['version', 'id']
 
 
 class Query(graphene.ObjectType):
