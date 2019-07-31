@@ -44,8 +44,13 @@ class Query(graphene.ObjectType):
     all_versions = graphene.List(VersionType)
     latest_version = graphene.Field(VersionType)
 
+    version = graphene.Field(VersionType, version_id=graphene.Int())
+
     def resolve_all_versions(self, info, **kwargs):
         return Version.objects.all()
 
     def resolve_latest_version(self, info, **kwargs):
         return Version.objects.latest('id')
+
+    def resolve_version(self, info, version_id):
+        return Version.objects.get(pk=version_id)
